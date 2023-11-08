@@ -69,6 +69,42 @@ module.exports = {
     }
   },
   // add friend
+  async addFriend(req, res) {
+    try {
+      User.findById(req.params.userId, function (err, user) {
+        if (err) {
+          res.status(500).send(err);
+        } else {
+          user.friends.push(req.params.friendId);
+          user.save(function(err) {
+            if (err) {
+              res.status(500).send(err);
+            } else {
+              res.status(200).send('Friend added');
+            }
+          })
+        }
+      })
+    } catch (err) {
+      res.status(500).send(err);
+    }
+   },
   
   // delete friend
-};
+  async deleteFriend(req, res) {
+    try {
+      const user = await User.findByIdAndUpdate(
+        req.params.userId,
+        { $pull: { friends: req.params.friendId } },
+        { new: true }
+      );
+   
+      if (!user) {
+        return res.status(404).send('User not found');
+      }
+   
+      res.status(200).send('Friend removed successfully');
+    } catch (err) {
+      res.status(500).send(err);
+    }
+   }};
